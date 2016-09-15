@@ -1,4 +1,4 @@
-name := "simpl_spark_cassandra"
+name := "rabbitmq_spark_stream_processor"
 version := "1.0"
 scalaVersion := "2.10.5"
 

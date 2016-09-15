@@ -7,27 +7,44 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.Time
 import com.typesafe.config.Config
 
-class RabbitmqSpark(val configurations: Config) {
+abstract class RabbitmqSpark() {
 
-  def getRabbitmqConfig() : Map[String, String] = {
-    return Map(
-      "hosts"         -> configurations.getString("hosts"),
-      "queueName"     -> configurations.getString("queueName"),
-      "exchangeName"  -> configurations.getString("exchangeName"),
-      "exchangeType"  -> configurations.getString("exchangeType"),
-      "vHost"         -> configurations.getString("vHost"),
-      "userName"      -> configurations.getString("userName"),
-      "password"      -> configurations.getString("password")
+  var spark_streaming_conf: SparkConf         = null
+  var spark_streaming_ctx: StreamingContext   = null
+  var sparkAppName: String                    = "RabbitMQ Stream Processor"
+  var sparkMaster: String                     = "local[2]"
+  var rabbitmqConfig: Map[String, String]     = null
+  var fetchTimeInterval: Int                  = 3
+
+  def setRabbitmqConfig(rabbitmq_config: Config) {
+    rabbitmqConfig = Map(
+      "hosts"         -> rabbitmq_config.getString("hosts"),
+      "queueName"     -> rabbitmq_config.getString("queueName"),
+      "exchangeName"  -> rabbitmq_config.getString("exchangeName"),
+      "exchangeType"  -> rabbitmq_config.getString("exchangeType"),
+      "vHost"         -> rabbitmq_config.getString("vHost"),
+      "userName"      -> rabbitmq_config.getString("userName"),
+      "password"      -> rabbitmq_config.getString("password")
     )
   }
 
-  def execute() {
-    println("Creating Streaming context..")
-    val conf = new SparkConf().setAppName("simpl-rabbitmq").setMaster("local[2]")
-    val ssc = new StreamingContext(conf, Seconds(3))
+  def setSparkStreamingConfig() {
+    spark_streaming_conf = new SparkConf().setAppName(sparkAppName).setMaster(sparkMaster)
+  }
 
+  def createStreamingContext() {
+    println("Creating Streaming context with fetch time: " + fetchTimeInterval)
+    spark_streaming_ctx = new StreamingContext(spark_streaming_conf, Seconds(fetchTimeInterval))
+  }
+
+  def setup() {
+    setSparkStreamingConfig()
+    createStreamingContext()
+  }
+
+  def execute() {
     println("Creating rabbit stream receiver..")
-    val receiverStream = RabbitMQUtils.createStream[String](ssc, getRabbitmqConfig())
+    var receiverStream = RabbitMQUtils.createStream[String](spark_streaming_ctx, rabbitmqConfig)
     receiverStream.start()
 
     println("Ready for processing..")
@@ -40,8 +57,12 @@ class RabbitmqSpark(val configurations: Config) {
     })
 
     println("Initiating stream consumer..")
-    ssc.start()
-    ssc.awaitTermination()
+    spark_streaming_ctx.start()
+    spark_streaming_ctx.awaitTermination()
+  }
+
+  def getStreamingContext() : StreamingContext = {
+    return spark_streaming_ctx
   }
 
 }

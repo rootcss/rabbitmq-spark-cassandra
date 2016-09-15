@@ -11,6 +11,7 @@ import org.apache.log4j.Level
 import com.datastax.spark.connector._
 import com.datastax.driver.core.utils.UUIDs
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 
 object Main {
  def main(args: Array[String]) {
@@ -19,7 +20,16 @@ object Main {
    Logger.getLogger("org").setLevel(Level.ERROR)
    Logger.getLogger("akka").setLevel(Level.ERROR)
 
-   val rabbit = new RabbitmqSpark(configurations.getConfig("rabbitmq"))
-   rabbit.execute()
+   val x = new RabbitmqTest(configurations)
+   x.executexx()
  }
+}
+
+class RabbitmqTest(var config: Config) extends RabbitmqSpark {
+  def executexx() {
+    setRabbitmqConfig(config.getConfig("rabbitmq"))
+    fetchTimeInterval = 5
+    setup()
+    execute()
+  }
 }
