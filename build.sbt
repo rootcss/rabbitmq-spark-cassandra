@@ -9,4 +9,5 @@ libraryDependencies += "com.datastax.spark" % "spark-cassandra-connector_2.10" %
 libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.6.0"
 libraryDependencies += "com.stratio.receiver" % "spark-rabbitmq_1.6" % "0.3.0"
 // libraryDependencies += "io.spray" %%  "spray-json" % "1.3.2"
+libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 resolvers += "Akka Repository" at "http://repo.akka.io/releases/"
