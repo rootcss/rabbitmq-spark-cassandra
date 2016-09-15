@@ -11,3 +11,8 @@ Building & Execution:
 `sbt package`
 <br>
 `sbt run`
+
+
+TODO:
+<br> 1. Logging
+<br> 2. Refactor the RabbitmqSparkStreamHandler class
