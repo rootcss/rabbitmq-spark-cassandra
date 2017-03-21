@@ -16,3 +16,7 @@ Building & Execution:
 TODO:
 <br> 1. Logging
 <br> 2. Refactor the RabbitmqSparkStreamHandler class
+
+
+`spark-submit --class simpl_spark_cassandra.Main  target/scala-2.10/rabbitmq_spark_stream_processor_2.10-1.0.jar`
+
